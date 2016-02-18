@@ -17,3 +17,8 @@
 	margin-top: -300px;
     border: 1px solid #000;
 }
+#resetting{
+	display: inline-block;
+	padding: 5px 10px;
+    border: 1px solid #000;
+}
