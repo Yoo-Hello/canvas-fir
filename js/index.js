@@ -1,10 +1,14 @@
 window.onload=function(){
+	
 	var resetting=document.querySelector('#resetting');
 	var canvas=document.querySelector('#canvas');
 	var ctx=canvas.getContext('2d');
 
 	var bgcolor=document.querySelector('#bgcolor');
 	var bgc=bgcolor.getContext('2d');
+
+	var memory={};
+	var kaiguan=true;
     
     bgc.beginPath();
     bgc.fillStyle='rgb(240,220,25)';
@@ -15,35 +19,40 @@ window.onload=function(){
  //    ctx.beginPath();
 	// ctx.strokeRect(37.5,37.5,525,525);
 	// ctx.stroke();
+    //画棋盘
 
-	for(var i=0;i<15;i++){
-       bgc.beginPath();
-       bgc.moveTo(20.5+i*40,20);
-       bgc.lineTo(20.5+i*40,580);
-       bgc.stroke(); 
+    var huaqipan=function(){
+    	for(var i=0;i<15;i++){
+           bgc.beginPath();
+           bgc.moveTo(20.5+i*40,20);
+           bgc.lineTo(20.5+i*40,580);
+           bgc.stroke(); 
 
-       bgc.beginPath();
-       bgc.moveTo(20,20.5+i*40);
-       bgc.lineTo(580,20.5+i*40);
-       bgc.stroke();
-	}
+           bgc.beginPath();
+           bgc.moveTo(20,20.5+i*40);
+           bgc.lineTo(580,20.5+i*40);
+           bgc.stroke();
+    	}
 
-    bgc.beginPath();
+        bgc.beginPath();
 
-	bgc.fillStyle="rgb(0,0,0)";
-	bgc.arc(300,300,3,0,Math.PI*2);
-	bgc.fill();
+    	bgc.fillStyle="rgb(0,0,0)";
+    	bgc.arc(300,300,3,0,Math.PI*2);
+    	bgc.fill();
 
-	for(var i=0;i<2;i++){
-		bgc.beginPath();
-		bgc.fillStyle="rgb(0,0,0)";
-	    bgc.arc(140+i*320,140,3,0,Math.PI*2);
-	    bgc.fill();
+    	for(var i=0;i<2;i++){
+    		bgc.beginPath();
+    		bgc.fillStyle="rgb(0,0,0)";
+    	    bgc.arc(140+i*320,140,3,0,Math.PI*2);
+    	    bgc.fill();
 
-	    bgc.beginPath();
-	    bgc.arc(140+i*320,460,3,0,Math.PI*2);
-	    bgc.fill();
-	}
+    	    bgc.beginPath();
+    	    bgc.arc(140+i*320,460,3,0,Math.PI*2);
+    	    bgc.fill();
+    	}
+    }
+    huaqipan();
+	
 
 
 	// var lingrad=bgc.createLinearGradient(20,20,20,580);
@@ -66,7 +75,7 @@ window.onload=function(){
 	//落子
 
 
-	var luozi=function(x,y,color){
+	var luozi2=function(x,y,color){
 		var zx=40*x+20.5;
 		var zy=40*y+20.5;
 		var black=ctx.createRadialGradient(zx,zy,3,zx,zy,18);
@@ -80,24 +89,29 @@ window.onload=function(){
         ctx.arc(zx,zy,18,0,Math.PI*2);
         ctx.fill();
 	}
-    var memory={};
-    var kaiguan=true;
+    var luozi=function(x,y,color){
+
+    	var zx=40*x+2.5;
+    	var zy=40*y+2.5;
+    	if(color){
+    		ctx.drawImage(qiziimg,0,0,200,200,zx,zy,36,36);
+    	}else{
+    		ctx.drawImage(qiziimg,200,0,200,200,zx,zy,36,36)
+    	}
+    }
+    //判定该下黑子白子
     canvas.onclick=function(e){
     	var x=Math.round((e.offsetX-20.5)/40);
     	var y=Math.round((e.offsetY-20.5)/40);
     	if(memory[x+'_'+y]){return}
     	luozi(x,y,kaiguan);
         memory[x+'_'+y]=kaiguan?'black':'white';
-        localStorage.kg=kaiguan;
+        l ocalStorage.kg=kaiguan;
     	kaiguan =! kaiguan;
     	localStorage.data=JSON.stringify(memory);
     }
     
-    if(localStorage.kg == true){
-    	kaiguan=false;
-    }else if(localStorage.kg == false){
-    	kaiguan=true;
-    }
+    //保存棋盘数据，刷新后不被清空
     if(localStorage.data){
     	memory=JSON.parse(localStorage.data);
     	for(var i in memory){
@@ -106,7 +120,14 @@ window.onload=function(){
     		luozi(x,y,(memory[i]=="black")?true:false)
     	}
     }
+    if(localStorage.kg == 'true'){
+    	kaiguan=false;
+    }else if(localStorage.kg == 'false'){
+    	kaiguan=true;
+    }
 
+
+    //重新开始
     resetting.onclick=function(){
     	localStorage.clear(localStorage.data);
     	memory={};
