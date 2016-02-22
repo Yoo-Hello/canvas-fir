@@ -1,13 +1,17 @@
 window.onload=function(){
 	
 	var resetting=document.querySelector('#resetting');
-	var canvas=document.querySelector('#canvas');
+	var preserve=document.querySelector('#preserve');
+    var canvas=document.querySelector('#canvas');
 	var ctx=canvas.getContext('2d');
 
 	var bgcolor=document.querySelector('#bgcolor');
 	var bgc=bgcolor.getContext('2d');
 
+    var huiqi=document.querySelector('#huiqi');
+
 	var memory={};
+    var baocun;
 	var kaiguan=true;
     
     bgc.beginPath();
@@ -54,7 +58,7 @@ window.onload=function(){
     huaqipan();
 	
 
-
+    //渐变色
 	// var lingrad=bgc.createLinearGradient(20,20,20,580);
 	// lingrad.addColorStop(0,'red');
 	// lingrad.addColorStop(0.2,'orange');
@@ -106,11 +110,59 @@ window.onload=function(){
     	if(memory[x+'_'+y]){return}
     	luozi(x,y,kaiguan);
         memory[x+'_'+y]=kaiguan?'black':'white';
-        l ocalStorage.kg=kaiguan;
+        localStorage.kg=kaiguan;
     	kaiguan =! kaiguan;
     	localStorage.data=JSON.stringify(memory);
+
+        if(!kaiguan){
+        if( win(x,y,'black') ){
+            alert('黑棋胜利');
+            if(confirm('是否再来一局?')){
+               localStorage.clear();
+               location.reload();
+               memory = {};
+               kaiguan = true;
+               return;
+            }else{
+               canvas1.onclick  = null;
+            }
+          }
+        }else{
+          if( win(x,y,'white')){
+             alert('白棋胜利');
+            if(confirm('是否再来一局?')){
+              localStorage.clear();
+              location.reload();
+              memory = {};
+              kaiguan = true;
+              return;
+            }else{
+               canvas1.onclick  = null;
+            }
+          }
+        }
+
+
+        //悔棋
+        if(localStorage.kg == 'true'){
+            kaiguan=false;
+        }else if(localStorage.kg == 'false'){
+            kaiguan=true;
+        }
+
+        huiqi.onclick=function(){
+            var newmemory = {};//创建一个新对象
+            for(var i in memory){
+              if(i != (x+'_'+y)){//把当前点击的棋子除去之后，将memory对象重新复制给newmemory;
+                newmemory[i] = memory[i];
+              }
+            }
+            memory = newmemory;//再把newmemory重新复制给qizi，
+            kaiguan = !kaiguan;
+            ctx.clearRect(x*40+3,y*40+3,35,35);//擦除刚才点击过的棋子
+        }
     }
-    
+
     //保存棋盘数据，刷新后不被清空
     if(localStorage.data){
     	memory=JSON.parse(localStorage.data);
@@ -136,6 +188,42 @@ window.onload=function(){
     }
 	
 
+    //判定输赢
+    var win=function(x,y,color){
+      var shuju = filter(color);
+      var tx,ty,H = 1,S = 1,ZX = 1,YX= 1;
+
+      tx = x;ty = y;while(shuju[moshi(tx-1,ty)]){tx--;H++}
+      tx = x;ty = y;while(shuju[moshi(tx+1,ty)]){tx++;H++}
+      if(H >= 5){return true}
+
+      tx = x;ty = y;while(shuju[moshi(tx,ty-1)]){ty--;S++}
+      tx = x;ty = y;while(shuju[moshi(tx,ty+1)]){ty++;S++}
+      if(S >= 5){return true}
+
+      tx = x;ty = y;while(shuju[moshi(tx-1,ty-1)]){ty--;tx--;ZX++}
+      tx = x;ty = y;while(shuju[moshi(tx+1,ty+1)]){ty++;tx++;ZX++}
+      if(ZX >= 5){return true}
+
+      tx = x;ty = y;while(shuju[moshi(tx+1,ty-1)]){ty--;tx++;YX++}
+      tx = x;ty = y;while(shuju[moshi(tx-1,ty+1)]){ty++;tx--;YX++}
+      if(YX >= 5){return true}
+    }
+
+    var moshi = function(x,y){
+      return x+'_'+y;
+    }
+
+    var filter = function(color){
+      var r = {};
+      for(var i in memory){
+        if(memory[i] == color){
+           r[i] = memory[i]
+        }
+      }
+      return r;
+    }
+    //倒计时
 	
  //localStorage.a=1
  //localStorage.clear 清空
