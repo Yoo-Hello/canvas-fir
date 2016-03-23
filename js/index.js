@@ -2,7 +2,7 @@ window.onload=function(){
 	
 	var resetting=document.querySelector('#resetting');
 	var preserve=document.querySelector('#preserve');
-    var canvas=document.querySelector('#canvas');
+  var canvas=document.querySelector('#canvas');
 	var ctx=canvas.getContext('2d');
 
 	var bgcolor=document.querySelector('#bgcolor');
@@ -57,25 +57,6 @@ window.onload=function(){
     }
     huaqipan();
 	
-
-    //渐变色
-	// var lingrad=bgc.createLinearGradient(20,20,20,580);
-	// lingrad.addColorStop(0,'red');
-	// lingrad.addColorStop(0.2,'orange');
-	// lingrad.addColorStop(0.4,'yellow');
-	// lingrad.addColorStop(0.6,'green');
-	// lingrad.addColorStop(0.8,'blue');
-	// lingrad.addColorStop(1,'purple');
-
-
-	// bgc.beginPath();
-	// bgc.strokeStyle=lingrad;
-	// bgc.lineWidth=6;
-	// bgc.moveTo(20,20);
-	// bgc.lineTo(20,580);
-	// bgc.stroke();
-
-
 	//落子
 
 
@@ -88,7 +69,7 @@ window.onload=function(){
 		var white=ctx.createRadialGradient(zx,zy,3,zx,zy,18);
 		white.addColorStop(0.1,'#ddd');
 		white.addColorStop(1,'#ccc');
-		ctx.fillStyle=color?black:white;
+		ctx.fillStyle=(color=='black')?black:white;
         ctx.beginPath();
         ctx.arc(zx,zy,18,0,Math.PI*2);
         ctx.fill();
@@ -97,25 +78,52 @@ window.onload=function(){
 
     	var zx=40*x+2.5;
     	var zy=40*y+2.5;
-    	if(color){
+    	if(color=='black'){
     		ctx.drawImage(qiziimg,0,0,200,200,zx,zy,36,36);
     	}else{
     		ctx.drawImage(qiziimg,200,0,200,200,zx,zy,36,36)
     	}
+    }
+    var ai=function(){
+      do{
+        var x=Math.floor(Math.random()*15);
+        var y=Math.floor(Math.random()*15);
+      }while(memory[x+'_'+y])
+      return {x:x,y:y}
+    }
+    /*防守AI*/
+    var kongbai=function(){
+      for(var i=0;i<15;i++){
+        for(var j=0;j<15;j++){
+          return i+'_'+j
+        }
+      }
+    }
+    var fangshouAI=function(){
+      var max=-10000;
+      var xx={};
+      for(var i in kongbai){
+        var pos=i;
+        var x=panduan(Number(pos.split('_')[0],Number(pos.split('_')[1]),'black'))
+      }
     }
     //判定该下黑子白子
     canvas.onclick=function(e){
     	var x=Math.round((e.offsetX-20.5)/40);
     	var y=Math.round((e.offsetY-20.5)/40);
     	if(memory[x+'_'+y]){return}
-    	luozi(x,y,kaiguan);
-        memory[x+'_'+y]=kaiguan?'black':'white';
-        localStorage.kg=kaiguan;
-    	kaiguan =! kaiguan;
-    	localStorage.data=JSON.stringify(memory);
+    	luozi(x,y,'black');
+      memory[x+'_'+y]='black';
+      var AI=ai();
+      luozi(AI.x,AI.y,'white');
+      memory[AI.x+'_'+AI.y]='white';
+     //  memory[x+'_'+y]=kaiguan?'black':'white';
+     //  localStorage.kg=kaiguan;
+    	// kaiguan =! kaiguan;
+    	// localStorage.data=JSON.stringify(memory);
 
         if(!kaiguan){
-        if( win(x,y,'black') ){
+          if( win(x,y,'black') ){
             alert('黑棋胜利');
             if(confirm('是否再来一局?')){
                localStorage.clear();
